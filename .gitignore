@@ -1,0 +1,12 @@
+
+.vagrant/bundler/global.sol
+.vagrant/machines/vm-kernel-update/virtualbox/action_provision
+.vagrant/machines/vm-kernel-update/virtualbox/action_set_name
+.vagrant/machines/vm-kernel-update/virtualbox/box_meta
+.vagrant/machines/vm-kernel-update/virtualbox/creator_uid
+.vagrant/machines/vm-kernel-update/virtualbox/id
+.vagrant/machines/vm-kernel-update/virtualbox/index_uuid
+.vagrant/machines/vm-kernel-update/virtualbox/private_key
+.vagrant/machines/vm-kernel-update/virtualbox/synced_folders
+.vagrant/machines/vm-kernel-update/virtualbox/vagrant_cwd
+.vagrant/rgloader/loader.rb
