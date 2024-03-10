@@ -1,15 +1,15 @@
 MACHINES = {
-  :"vm-kernel-update" => {
+  :"kernel-update" => {
     :box_name => "generic/centos8s",
     :box_version => "4.3.4",
-    :cpus => 2,
-    :memory => 1024,
+    :cpus => 8,
+    :memory => 16384,
   }
 }
 
 Vagrant.configure("2") do |config|
   MACHINES.each do |boxname, boxconfig|
-    config.vm.synced_folder ".", "/vagrant", disabled: true
+    config.vm.synced_folder ".", "/vagrant"
     config.vm.define boxname do |box|
       box.vm.box = boxconfig[:box_name]
       box.vm.box_version = boxconfig[:box_version]
