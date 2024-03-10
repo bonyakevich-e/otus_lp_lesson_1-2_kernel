@@ -9,27 +9,34 @@
 1. Создаем Vagrantfile с описанием конфигурации виртуальной машины. Используем CentOS 8 с устаревшим ядром.
 
 2. Запускаем виртуальную машину и подключаемся к ней:
+
 $ vagrant up
+
 $ vagrant ssh
 
-3. Проверяем текущую версию ядра:
+4. Проверяем текущую версию ядра:
+
 $ uname -r
+   
    4.18.0-516.el8.x86_64
 
-4. Подключаем репозиторий, откуда возьмём необходимую версию ядра:
+5. Подключаем репозиторий, откуда возьмём необходимую версию ядра:
+
 $ sudo yum install -y https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm 
 
-5. В репозитории elrepo есть две версии ядер - kernel-lt и kernel-ml. Обе версии собраны с официальных исходников kernel.org.
+6. В репозитории elrepo есть две версии ядер - kernel-lt и kernel-ml. Обе версии собраны с официальных исходников kernel.org.
 Разница в том что kernel-lt основано на long-term ветке, а kernel-ml - на mainline stable. 
 Устанавливаем последнюю kernel-ml версию ядра:
+
 $ sudo yum --enablerepo elrepo-kernel install kernel-ml -y
 
-6. В инструкции указано обновить конфигурации grub командой grub2-mkconfig. Но похоже что в CentOS8 это лишнее действие. Оно не обновляет меню загрузки,
+7. В инструкции указано обновить конфигурации grub командой grub2-mkconfig. Но похоже что в CentOS8 это лишнее действие. Оно не обновляет меню загрузки,
 потому как меню загрузки теперь находится в каталоге /boot/loader/entries, а не в /boot/grub2/grub.cfg. Этот файл с меню генерируется при установке ядра скриптом /bin/kernel-install.
 
 Для управления загрузкой в RH8/CentOS8 используется grubby. Cмотрим, какое сейчас ядро установленно для загрузки по умолчанию:
 
 sudo grubby --default-kernel
+   
    /boot/vmlinuz-6.7.9-1.el8.elrepo.x86_64
    
 Видим что это наше новое ядро, поэтому никаких действий больше не требуется, переходим к шагу 7. Если нужно было бы поменять, то мы бы сначала посмотрели доступные ядра и их индексы 
@@ -38,6 +45,7 @@ sudo grubby --default-kernel
 7. Перезагружаемся и проверяем версию ядра:
 
 $ uname -r
+   
    6.7.8-1.el8.elrepo.x86_64
 
 ===========================================================================================
@@ -53,27 +61,39 @@ $ uname -r
 1. Поднимаем виртуальную машину CentOS с устаревшим ядром и подключаемся к ней по ssh. Используем Vagrantfile с предыдущего задания
 
 2. Ставим пакеты, необходимые для сборки ядра:
+
 $ yum -y groupinstall "Development Tools"
+
 $ yum -y install ncurses-devel
+
 $ yum -y install hmaccalc zlib-devel binutils-devel elfutils-libelf-devel
+
 $ yum -y install bc openssl-devel
 
 Добавляем репозиторий PowerTools для возможности установки dwarves:
+
 $ yum -y install dnf-plugins-core
+
 $ yum config-manager --set-enabled powertools
 
 $ yum -y install dwarves
 
 3. Качаем исходники
+
 $ cd /usr/src
+
 $ wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.7.8.tar.xz
 
 Извлекаем:
+
 $ tar -Jxvf linux-6.7.8.tar.xz
+
 $ ln -s linux-6.7.8 linux
+
 $ cd linux
 
 4. Кофигурируем наше будущее ядро. Это можно делать несколькими способами (make oldconfig, make menuconfig и другие можно посмотреть командой make help)
+
 $ make menuconfig
 
 Здесь кроме всего прочего, нужно проверить параметры "Additional X.509 keys for default system keyring" и "File name or PKCS#11 URI of module signing key" в разделе
@@ -110,6 +130,7 @@ sudo grubby --default-kernel
 9. Перезагружаемся и смотрим версию ядра
 
 [vagrant@kernel-update ~]$ uname -r
+
 6.7.8
 
 ============================================================================================================
@@ -118,13 +139,17 @@ sudo grubby --default-kernel
 ЗАДАНИЕ 3. VirtualBox Shared Folders
 
 1. Включаем Shared Folders в Vagrantfile'е:
+
 ...
+
 config.vm.synced_folder ".", "/vagrant"
+
 ...
 
 2. Запускаем виртуалку и проверяем что Shared Folders работают (создаем тестовый файл на хостовой машине и проверяем что он доступен в виртуалке)
 
 на хосте: touch sh_folders_testing
+
 на госте: ll /vagrant
 
 3. Обновляем ядро 
@@ -136,7 +161,9 @@ config.vm.synced_folder ".", "/vagrant"
 - Смотрим /etc/fstab
 
 - Пытаемся примонтировать:
+
 $ mount vagrant
+
     sbin/mount.vboxsf: mounting failed with the error: No such device
 
 - Смотрим логи /var/log/messages, там ошибка "modprobe vboxguest failed". Не удается загрузить модуль vboxguest. Видимо его нужно пересобрать под новое ядро. 
@@ -146,7 +173,9 @@ $ mount vagrant
 - Подключаем образ VBoxGuestAdditions.iso через графическую консоль VirtualBox к нашей виртуальной машине
 
 - Монтируем этот образ
+
 $ mount -r /dev/cdrom /media
+
 $ cd /media/
 
 - запускаем установку 
@@ -166,11 +195,17 @@ yum -y --enablerepo=elrepo-kernel install kernel-ml-{devel,headers} --allowerasi
 Видим в процессе установки - "VirtualBox Guest Additions: Building the modules for kernel 6.7.9-1.el8.elrepo.x86_64.". То что нам нужно. 
 
 7. Проверяем:
+
 [vagrant@kernel-update ~]$ ll /vagrant/
+
 total 4
+
 -rw-r--r--. 1 vagrant vagrant 576 Mar  7 09:43 Vagrantfile
+
 -rw-rw-r--. 1 vagrant vagrant   0 Mar  7 09:43 sh_folders_testing
+
 [vagrant@kernel-update ~]$ uname -r
+
 6.7.9-1.el8.elrepo.x86_64
 
 Видими что файлы пробрасываеются, Shared Folders работает.
