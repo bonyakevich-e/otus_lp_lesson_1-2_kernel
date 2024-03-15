@@ -150,7 +150,7 @@ config.vm.synced_folder ".", "/vagrant"
 - Смотрим `/etc/fstab`
 
 - Пытаемся примонтировать:
-````
+```
 $ mount vagrant
 
     sbin/mount.vboxsf: mounting failed with the error: No such device
